@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participar do Amigo Secreto - Sorteador.io</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="global-notification"></div>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" class="logo">Sorteador.io</a>
+            <h2>Grupo: <span id="join-group-name" class="invite-title">Carregando...</span></h2>
+            
+            <p id="join-instructions" class="auth-subtext">Carregando...</p>
+            
+            <form id="join-group-form" style="display: none;">
+                <div class="form-group">
+                    <label for="join-name">Seu Nome</label>
+                    <input type="text" id="join-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="join-password">Crie uma Senha Simples para este Grupo</label>
+                    <input type="password" id="join-password" required>
+                </div>
+                <button type="submit" class="btn-principal auth-btn">Entrar no Grupo</button>
+            </form>
+
+            <div id="join-result-display" class="sorteio-resultado" style="display: none;"></div>
+            
+            <hr class="divider" id="join-divider" style="display: none;">
+
+            <h3 id="join-list-title" style="display: none;">Quem já entrou:</h3>
+            <div id="join-participants-list" class="join-list-container"></div>
+        </div>
+        
+        <div id="action-modal" class="action-modal">
+            <div class="action-modal-content">
+                <p id="action-modal-text">Texto da pergunta aqui</p>
+                <input type="password" id="action-modal-input" style="display: none;">
+                <div class="action-modal-buttons">
+                    <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
+                    <button id="action-modal-ok" class="btn-principal">OK</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>

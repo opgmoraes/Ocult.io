@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Grupo - Sorteador.io</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="global-notification"></div>
+
+    <header class="cabecalho">
+        <div class="container">
+            <a href="dashboard.html" class="logo">Sorteador.io</a>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Voltar ao Painel</a>
+                <button id="logout-button" class="btn-secundario">Sair</button>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-main">
+        <div class="container">
+            <div id="group-details-container">
+                <h2 id="group-name-title">Carregando grupo...</h2>
+                <p><strong>Data do Sorteio:</strong> <span id="group-draw-date">--/--/----</span></p>
+                <p><strong>Faixa de Preço:</strong> R$ <span id="group-price-range">--,--</span></p>
+            </div>
+            
+            <div id="draw-section" class="draw-section">
+                <button id="sortear-button" class="btn-principal btn-large" disabled>Carregando...</button>
+                <div id="draw-result-display" class="sorteio-resultado"></div>
+            </div>
+
+            <div class="invite-link-section">
+                <h3>Link Geral do Grupo</h3>
+                <p>Envie este link único para TODOS os participantes entrarem no grupo.</p>
+                <div class="invite-link-wrapper">
+                    <input type="text" id="invite-link-input" readonly>
+                    <button id="copy-link-button" class="btn-secundario">Copiar</button>
+                </div>
+            </div>
+            <hr class="divider">
+            <div class="participants-section">
+                <h3>Participantes que já entraram</h3>
+                <div id="participants-list" class="participants-list-container">
+                    <p>Aguardando participantes...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="action-modal" class="action-modal">
+            <div class="action-modal-content">
+                <p id="action-modal-text">Texto da pergunta aqui</p>
+                <input type="text" id="action-modal-input" style="display: none;">
+                <div class="action-modal-buttons">
+                    <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
+                    <button id="action-modal-ok" class="btn-principal">OK</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
