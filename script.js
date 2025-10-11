@@ -35,30 +35,16 @@ function showCustomConfirm(message) {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-
-        if (!modal) {
-            console.error("Modal de Ação não encontrado no HTML!");
-            return resolve(confirm(message));
-        }
-
+        if (!modal) { return resolve(confirm(message)); }
         modalText.textContent = message;
         input.style.display = 'none';
         modal.style.display = 'flex';
-
-        // Recria os botões para limpar listeners antigos
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-
-        newOkButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(true);
-        };
-        newCancelButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(false);
-        };
+        newOkButton.onclick = () => { modal.style.display = 'none'; resolve(true); };
+        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(false); };
     });
 }
 
@@ -69,42 +55,21 @@ function showCustomPrompt(message, type = 'text') {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-
-        if (!modal) {
-            console.error("Modal de Ação não encontrado no HTML!");
-            return resolve(prompt(message));
-        }
-
+        if (!modal) { return resolve(prompt(message)); }
         modalText.textContent = message;
         input.style.display = 'block';
         input.type = type;
         input.value = '';
         modal.style.display = 'flex';
         input.focus();
-
-        // Recria os botões para limpar listeners antigos
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-        
-        const resolveWithValue = () => {
-            modal.style.display = 'none';
-            resolve(input.value);
-        };
-        
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                resolveWithValue();
-            }
-        };
+        const resolveWithValue = () => { modal.style.display = 'none'; resolve(input.value); };
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); resolveWithValue(); } };
         newOkButton.onclick = resolveWithValue;
-        
-        newCancelButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(null);
-        };
+        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(null); };
     });
 }
 
@@ -131,17 +96,11 @@ function setupAuthForms() {
             submitButton.textContent = 'Criando...';
             auth.createUserWithEmailAndPassword(email, senha)
                 .then(userCredential => {
-                    return db.collection('usuarios').doc(userCredential.user.uid).set({
-                        nome: nome,
-                        email: email,
-                        plano: 'gratuito'
-                    });
+                    return db.collection('usuarios').doc(userCredential.user.uid).set({ nome: nome, email: email, plano: 'gratuito' });
                 })
                 .then(() => {
                     showNotification('Cadastro realizado com sucesso! Redirecionando...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
                 })
                 .catch(handleAuthError)
                 .finally(() => {
@@ -162,9 +121,7 @@ function setupAuthForms() {
             auth.signInWithEmailAndPassword(email, senha)
                 .then(() => {
                     showNotification('Login bem-sucedido! Redirecionando...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
                 })
                 .catch(() => showNotification('E-mail ou senha inválidos.', 'error'))
                 .finally(() => {
@@ -341,7 +298,6 @@ function setupJoinPage() {
 async function realizarSorteio(groupId) {
     const confirmed = await showCustomConfirm("Tem certeza que deseja realizar o sorteio? Esta ação não pode ser desfeita.");
     if (!confirmed) return;
-
     const sortearButton = document.getElementById('sortear-button');
     sortearButton.disabled = true;
     sortearButton.textContent = "Sorteando...";

@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Grupo - Sorteador.io</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Gerenciar Grupo - Ocult.io</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="global-notification"></div>
 
     <header class="cabecalho">
         <div class="container">
-            <a href="dashboard.html" class="logo">Sorteador.io</a>
+            <a href="dashboard.html" class="logo"><img src="public/images/logo.png" alt="Ocult.io Logo"></a>
             <nav>
                 <a href="dashboard.html" class="nav-link">Voltar ao Painel</a>
                 <button id="logout-button" class="btn-secundario">Sair</button>
@@ -43,16 +43,14 @@
             <hr class="divider">
             <div class="participants-section">
                 <h3>Participantes que já entraram</h3>
-                <div id="participants-list" class="participants-list-container">
-                    <p>Aguardando participantes...</p>
-                </div>
+                <div id="participants-list" class="participants-list-container"></div>
             </div>
         </div>
         
         <div id="action-modal" class="action-modal">
             <div class="action-modal-content">
-                <p id="action-modal-text">Texto da pergunta aqui</p>
-                <input type="text" id="action-modal-input" style="display: none;">
+                <p id="action-modal-text"></p>
+                <input type="password" id="action-modal-input" style="display: none;">
                 <div class="action-modal-buttons">
                     <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
                     <button id="action-modal-ok" class="btn-principal">OK</button>
@@ -65,6 +63,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
-    <script src="script.js"></script>
+    <script src="public/js/script.js"></script>
 </body>
 </html>

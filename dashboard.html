@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Painel - Sorteador.io</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Meu Painel - Ocult.io</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="global-notification"></div>
 
     <header class="cabecalho">
         <div class="container">
-            <a href="index.html" class="logo">Sorteador.io</a>
+            <a href="index.html" class="logo"><img src="public/images/logo.png" alt="Ocult.io Logo"></a>
             <nav>
                 <span id="user-greeting">Olá, ...</span>
                 <button id="logout-button" class="btn-secundario">Sair</button>
@@ -25,14 +25,13 @@
                 <h2>Meus Grupos de Amigo Secreto</h2>
                 <button id="open-modal-button" class="btn-principal">Criar Novo Grupo</button>
             </div>
-            <div id="grupos-lista" class="grupos-grid">
-                </div>
+            <div id="grupos-lista" class="grupos-grid"></div>
         </div>
 
         <div id="action-modal" class="action-modal">
             <div class="action-modal-content">
-                <p id="action-modal-text">Texto da pergunta aqui</p>
-                <input type="text" id="action-modal-input" style="display: none;">
+                <p id="action-modal-text"></p>
+                <input type="password" id="action-modal-input" style="display: none;">
                 <div class="action-modal-buttons">
                     <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
                     <button id="action-modal-ok" class="btn-principal">OK</button>
@@ -40,24 +39,14 @@
             </div>
         </div>
     </main>
-
     <div id="create-group-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2>Criar Novo Grupo</h2>
             <form id="create-group-form">
-                <div class="form-group">
-                    <label for="group-name">Nome do Grupo</label>
-                    <input type="text" id="group-name" required placeholder="Ex: Amigo Secreto da Família">
-                </div>
-                <div class="form-group">
-                    <label for="draw-date">Data do Sorteio</label>
-                    <input type="date" id="draw-date" required>
-                </div>
-                <div class="form-group">
-                    <label for="price-range">Faixa de Preço (R$)</label>
-                    <input type="text" id="price-range" placeholder="Ex: 50,00 - 100,00">
-                </div>
+                <div class="form-group"><label for="group-name">Nome do Grupo</label><input type="text" id="group-name" required placeholder="Ex: Amigo Secreto da Família"></div>
+                <div class="form-group"><label for="draw-date">Data do Sorteio</label><input type="date" id="draw-date" required></div>
+                <div class="form-group"><label for="price-range">Faixa de Preço (R$)</label><input type="text" id="price-range" placeholder="Ex: 50,00 - 100,00"></div>
                 <button type="submit" class="btn-principal">Salvar Grupo</button>
             </form>
         </div>
@@ -67,6 +56,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
-    <script src="script.js"></script>
+    <script src="public/js/script.js"></script>
 </body>
 </html>
