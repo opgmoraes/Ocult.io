@@ -27,7 +27,7 @@ function showNotification(message, type) {
     }
 }
 
-// --- FUNÇÕES DE MODAL ESTILIZADO ---
+// --- FUNÇÕES DE MODAL ESTILIZADO (SUBSTITUTOS DE CONFIRM E PROMPT) ---
 function showCustomConfirm(message) {
     return new Promise((resolve) => {
         const modal = document.getElementById('action-modal');
@@ -35,16 +35,29 @@ function showCustomConfirm(message) {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-        if (!modal) { return resolve(confirm(message)); }
+
+        if (!modal) {
+            console.error("Modal de Ação não encontrado no HTML!");
+            return resolve(confirm(message));
+        }
+
         modalText.textContent = message;
         input.style.display = 'none';
         modal.style.display = 'flex';
+
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-        newOkButton.onclick = () => { modal.style.display = 'none'; resolve(true); };
-        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(false); };
+
+        newOkButton.onclick = () => {
+            modal.style.display = 'none';
+            resolve(true);
+        };
+        newCancelButton.onclick = () => {
+            modal.style.display = 'none';
+            resolve(false);
+        };
     });
 }
 
@@ -55,21 +68,41 @@ function showCustomPrompt(message, type = 'text') {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-        if (!modal) { return resolve(prompt(message)); }
+
+        if (!modal) {
+            console.error("Modal de Ação não encontrado no HTML!");
+            return resolve(prompt(message));
+        }
+
         modalText.textContent = message;
         input.style.display = 'block';
         input.type = type;
         input.value = '';
         modal.style.display = 'flex';
         input.focus();
+
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-        const resolveWithValue = () => { modal.style.display = 'none'; resolve(input.value); };
-        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); resolveWithValue(); } };
+        
+        const resolveWithValue = () => {
+            modal.style.display = 'none';
+            resolve(input.value);
+        };
+        
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                resolveWithValue();
+            }
+        };
         newOkButton.onclick = resolveWithValue;
-        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(null); };
+        
+        newCancelButton.onclick = () => {
+            modal.style.display = 'none';
+            resolve(null);
+        };
     });
 }
 
@@ -96,11 +129,17 @@ function setupAuthForms() {
             submitButton.textContent = 'Criando...';
             auth.createUserWithEmailAndPassword(email, senha)
                 .then(userCredential => {
-                    return db.collection('usuarios').doc(userCredential.user.uid).set({ nome: nome, email: email, plano: 'gratuito' });
+                    return db.collection('usuarios').doc(userCredential.user.uid).set({
+                        nome: nome,
+                        email: email,
+                        plano: 'gratuito'
+                    });
                 })
                 .then(() => {
                     showNotification('Cadastro realizado com sucesso! Redirecionando...', 'success');
-                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
                 })
                 .catch(handleAuthError)
                 .finally(() => {
@@ -121,7 +160,9 @@ function setupAuthForms() {
             auth.signInWithEmailAndPassword(email, senha)
                 .then(() => {
                     showNotification('Login bem-sucedido! Redirecionando...', 'success');
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
                 })
                 .catch(() => showNotification('E-mail ou senha inválidos.', 'error'))
                 .finally(() => {
@@ -152,7 +193,6 @@ function setupAuthForms() {
 function setupDashboardPage() {
     const logoutButton = document.getElementById('logout-button');
     if(logoutButton) logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
-    
     auth.onAuthStateChanged(user => {
         if (user) {
             db.collection('usuarios').doc(user.uid).get().then(doc => {
@@ -162,34 +202,12 @@ function setupDashboardPage() {
               .onSnapshot(snapshot => renderGroups(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
         } else { window.location.href = 'login.html'; }
     });
-
     const createGroupForm = document.getElementById('create-group-form');
     const modal = document.getElementById('create-group-modal');
     document.getElementById('open-modal-button').onclick = () => { modal.style.display = 'block'; };
     document.querySelector('.close-button').onclick = () => { modal.style.display = 'none'; };
     window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
-    
-    createGroupForm.addEventListener('submit', async function(e) { 
-        e.preventDefault(); 
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const userDoc = await db.collection('usuarios').doc(user.uid).get();
-        const userPlan = userDoc.exists ? userDoc.data().plano : 'gratuito';
-
-        db.collection('grupos').add({ 
-            nome: document.getElementById('group-name').value, 
-            dataSorteio: document.getElementById('draw-date').value, 
-            faixaPreco: document.getElementById('price-range').value, 
-            organizadorId: user.uid, 
-            criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-            tipo: userPlan 
-        }).then(() => { 
-            modal.style.display = 'none'; 
-            this.reset(); 
-        }); 
-    });
-    
+    createGroupForm.addEventListener('submit', function(e) { e.preventDefault(); db.collection('grupos').add({ nome: document.getElementById('group-name').value, dataSorteio: document.getElementById('draw-date').value, faixaPreco: document.getElementById('price-range').value, organizadorId: auth.currentUser.uid, criadoEm: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { modal.style.display = 'none'; this.reset(); }); });
     document.getElementById('grupos-lista').addEventListener('click', async function(e) {
         if (e.target.classList.contains('delete-button')) {
             e.preventDefault();
@@ -286,11 +304,6 @@ function setupJoinPage() {
         const groupData = doc.data();
         groupNameEl.textContent = groupData.nome;
 
-        const myParticipantId = localStorage.getItem(`participant_${groupId}`);
-        if (groupData.tipo === 'premium' && myParticipantId) {
-            showMyWishlist(groupId, myParticipantId);
-        }
-
         if (groupData.statusSorteio === 'realizado') {
             instructionsEl.textContent = "Sorteio realizado! Clique no seu nome e digite sua senha para ver seu amigo secreto.";
             joinForm.style.display = 'none';
@@ -308,17 +321,10 @@ function setupJoinPage() {
                 const password = document.getElementById('join-password').value;
                 if(name && password){
                     db.collection('grupos').doc(groupId).collection('participantes').add({
-                        nome: name, 
-                        senha: password, 
-                        adicionadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-                        desejos: [] 
-                    }).then((docRef) => {
+                        nome: name, senha: password, adicionadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
                         joinForm.reset();
                         showNotification(`Bem-vindo(a) ao grupo, ${name}!`, 'success');
-                        localStorage.setItem(`participant_${groupId}`, docRef.id);
-                        if (groupData.tipo === 'premium') {
-                            showMyWishlist(groupId, docRef.id);
-                        }
                     });
                 }
             });
@@ -374,59 +380,6 @@ async function realizarSorteio(groupId) {
     batch.update(groupRef, { statusSorteio: "realizado" });
     await batch.commit();
     showNotification("Sorteio realizado com sucesso!", "success");
-}
-
-// --- FUNÇÕES DE LISTA DE DESEJOS ---
-function showMyWishlist(groupId, participantId) {
-    const wishlistSection = document.getElementById('wishlist-section');
-    if (!wishlistSection) return;
-    wishlistSection.style.display = 'block';
-    const wishlistForm = document.getElementById('wishlist-form');
-    const wishInput = document.getElementById('wish-input');
-    const myWishlistContainer = document.getElementById('my-wishlist');
-    const participantRef = db.collection('grupos').doc(groupId).collection('participantes').doc(participantId);
-    participantRef.onSnapshot(doc => {
-        const wishes = doc.exists ? doc.data().desejos : [];
-        renderMyWishes(wishes);
-    });
-    wishlistForm.onsubmit = (e) => {
-        e.preventDefault();
-        const newWish = wishInput.value.trim();
-        if (newWish) {
-            participantRef.update({
-                desejos: firebase.firestore.FieldValue.arrayUnion(newWish)
-            }).then(() => {
-                wishInput.value = '';
-            });
-        }
-    };
-    myWishlistContainer.onclick = (e) => {
-        if (e.target.classList.contains('remove-participant-btn')) {
-            const wishToRemove = e.target.parentElement.querySelector('span').textContent;
-            participantRef.update({
-                desejos: firebase.firestore.FieldValue.arrayRemove(wishToRemove)
-            });
-        }
-    };
-}
-
-function renderMyWishes(wishes) {
-    const myWishlistContainer = document.getElementById('my-wishlist');
-    if (!myWishlistContainer) return;
-    myWishlistContainer.innerHTML = '';
-    if (!wishes || wishes.length === 0) {
-        myWishlistContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Você ainda não adicionou nenhuma sugestão.</p>';
-        return;
-    }
-    wishes.forEach(wish => {
-        const item = document.createElement('div');
-        item.className = 'wish-item';
-        item.innerHTML = `
-            <span>${wish}</span>
-            <button class="remove-participant-btn">&times;</button>
-        `;
-        myWishlistContainer.appendChild(item);
-    });
 }
 
 // --- FUNÇÕES DE RENDERIZAÇÃO E UTILIDADE ---
