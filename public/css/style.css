@@ -119,3 +119,21 @@ a.grupo-card { text-decoration: none; }
     .hero p { font-size: 16px; }
     .dashboard-header { flex-direction: column; gap: 20px; }
 }
+/* --- Estilos da Lista de Desejos --- */
+#wishlist-section h3 {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.wish-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--deep-blue);
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--gold-cool);
+    color: var(--snow-white);
+}

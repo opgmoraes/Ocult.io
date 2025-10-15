@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Participar do Amigo Secreto - Ocult.io</title>
-    <link rel="icon" type="image/png" href="images/favicon.jpg">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -36,11 +36,24 @@
 
             <h3 id="join-list-title" style="display: none;">Quem já entrou:</h3>
             <div id="join-participants-list" class="join-list-container"></div>
+
+            <div id="wishlist-section" style="display: none;">
+                <hr class="divider">
+                <h3>Minha Lista de Desejos</h3>
+                <p class="auth-subtext">Adicione algumas sugestões de presentes para ajudar seu amigo secreto!</p>
+                <form id="wishlist-form" class="participant-form">
+                    <input type="text" id="wish-input" placeholder="Digite uma sugestão de presente" required>
+                    <button type="submit" class="btn-principal">Adicionar</button>
+                </form>
+                <div id="my-wishlist" class="participants-list-container">
+                    </div>
+            </div>
+
         </div>
         
         <div id="action-modal" class="action-modal">
             <div class="action-modal-content">
-                <p id="action-modal-text"></p>
+                <p id="action-modal-text">Texto da pergunta aqui</p>
                 <input type="password" id="action-modal-input" style="display: none;">
                 <div class="action-modal-buttons">
                     <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
