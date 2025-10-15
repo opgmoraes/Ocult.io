@@ -27,7 +27,7 @@ function showNotification(message, type) {
     }
 }
 
-// --- FUNÇÕES DE MODAL ESTILIZADO (SUBSTITUTOS DE CONFIRM E PROMPT) ---
+// --- FUNÇÕES DE MODAL ESTILIZADO ---
 function showCustomConfirm(message) {
     return new Promise((resolve) => {
         const modal = document.getElementById('action-modal');
@@ -35,29 +35,16 @@ function showCustomConfirm(message) {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-
-        if (!modal) {
-            console.error("Modal de Ação não encontrado no HTML!");
-            return resolve(confirm(message));
-        }
-
+        if (!modal) { return resolve(confirm(message)); }
         modalText.textContent = message;
         input.style.display = 'none';
         modal.style.display = 'flex';
-
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-
-        newOkButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(true);
-        };
-        newCancelButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(false);
-        };
+        newOkButton.onclick = () => { modal.style.display = 'none'; resolve(true); };
+        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(false); };
     });
 }
 
@@ -68,41 +55,21 @@ function showCustomPrompt(message, type = 'text') {
         const input = document.getElementById('action-modal-input');
         const okButton = document.getElementById('action-modal-ok');
         const cancelButton = document.getElementById('action-modal-cancel');
-
-        if (!modal) {
-            console.error("Modal de Ação não encontrado no HTML!");
-            return resolve(prompt(message));
-        }
-
+        if (!modal) { return resolve(prompt(message)); }
         modalText.textContent = message;
         input.style.display = 'block';
         input.type = type;
         input.value = '';
         modal.style.display = 'flex';
         input.focus();
-
         const newOkButton = okButton.cloneNode(true);
         okButton.parentNode.replaceChild(newOkButton, okButton);
         const newCancelButton = cancelButton.cloneNode(true);
         cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-        
-        const resolveWithValue = () => {
-            modal.style.display = 'none';
-            resolve(input.value);
-        };
-        
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                resolveWithValue();
-            }
-        };
+        const resolveWithValue = () => { modal.style.display = 'none'; resolve(input.value); };
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); resolveWithValue(); } };
         newOkButton.onclick = resolveWithValue;
-        
-        newCancelButton.onclick = () => {
-            modal.style.display = 'none';
-            resolve(null);
-        };
+        newCancelButton.onclick = () => { modal.style.display = 'none'; resolve(null); };
     });
 }
 
@@ -129,17 +96,11 @@ function setupAuthForms() {
             submitButton.textContent = 'Criando...';
             auth.createUserWithEmailAndPassword(email, senha)
                 .then(userCredential => {
-                    return db.collection('usuarios').doc(userCredential.user.uid).set({
-                        nome: nome,
-                        email: email,
-                        plano: 'gratuito'
-                    });
+                    return db.collection('usuarios').doc(userCredential.user.uid).set({ nome: nome, email: email, plano: 'gratuito' });
                 })
                 .then(() => {
                     showNotification('Cadastro realizado com sucesso! Redirecionando...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
                 })
                 .catch(handleAuthError)
                 .finally(() => {
@@ -160,9 +121,7 @@ function setupAuthForms() {
             auth.signInWithEmailAndPassword(email, senha)
                 .then(() => {
                     showNotification('Login bem-sucedido! Redirecionando...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
                 })
                 .catch(() => showNotification('E-mail ou senha inválidos.', 'error'))
                 .finally(() => {
@@ -193,6 +152,7 @@ function setupAuthForms() {
 function setupDashboardPage() {
     const logoutButton = document.getElementById('logout-button');
     if(logoutButton) logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
+    
     auth.onAuthStateChanged(user => {
         if (user) {
             db.collection('usuarios').doc(user.uid).get().then(doc => {
@@ -202,12 +162,34 @@ function setupDashboardPage() {
               .onSnapshot(snapshot => renderGroups(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
         } else { window.location.href = 'login.html'; }
     });
+
     const createGroupForm = document.getElementById('create-group-form');
     const modal = document.getElementById('create-group-modal');
     document.getElementById('open-modal-button').onclick = () => { modal.style.display = 'block'; };
     document.querySelector('.close-button').onclick = () => { modal.style.display = 'none'; };
     window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
-    createGroupForm.addEventListener('submit', function(e) { e.preventDefault(); db.collection('grupos').add({ nome: document.getElementById('group-name').value, dataSorteio: document.getElementById('draw-date').value, faixaPreco: document.getElementById('price-range').value, organizadorId: auth.currentUser.uid, criadoEm: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { modal.style.display = 'none'; this.reset(); }); });
+    
+    createGroupForm.addEventListener('submit', async function(e) { 
+        e.preventDefault(); 
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        const userPlan = userDoc.exists ? userDoc.data().plano : 'gratuito';
+
+        db.collection('grupos').add({ 
+            nome: document.getElementById('group-name').value, 
+            dataSorteio: document.getElementById('draw-date').value, 
+            faixaPreco: document.getElementById('price-range').value, 
+            organizadorId: user.uid, 
+            criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+            tipo: userPlan 
+        }).then(() => { 
+            modal.style.display = 'none'; 
+            this.reset(); 
+        }); 
+    });
+    
     document.getElementById('grupos-lista').addEventListener('click', async function(e) {
         if (e.target.classList.contains('delete-button')) {
             e.preventDefault();
@@ -254,7 +236,8 @@ function setupGroupPage() {
                     const hoje = new Date();
                     hoje.setHours(0, 0, 0, 0);
                     if (group.statusSorteio === 'realizado') {
-                        sortearButton.style.display = 'none';
+                        sortearButton.disabled = true;
+                        sortearButton.textContent = 'Sorteio Realizado!';
                         document.getElementById('draw-result-display').innerHTML = '<p>Sorteio concluído! Avise os participantes para conferirem o resultado com a senha que criaram.</p>';
                     } else if (dataSorteio <= hoje) {
                         sortearButton.disabled = false;
@@ -263,9 +246,11 @@ function setupGroupPage() {
                         sortearButton.disabled = true;
                         sortearButton.textContent = `Aguardando a data do sorteio`;
                     }
-                } else {
-                    showNotification("Você não é o organizador deste grupo ou o grupo não existe.", "error");
+                } else if(doc.exists) { // Se o grupo existe, mas não sou o organizador
+                    showNotification("Você não tem permissão para gerenciar este grupo.", "error");
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+                } else {
+                    window.location.href = 'dashboard.html';
                 }
             });
 
@@ -304,11 +289,16 @@ function setupJoinPage() {
         const groupData = doc.data();
         groupNameEl.textContent = groupData.nome;
 
+        const myParticipantId = localStorage.getItem(`participant_${groupId}`);
+        if (groupData.tipo === 'premium' && myParticipantId && groupData.statusSorteio !== 'realizado') {
+            showMyWishlist(groupId, myParticipantId);
+        }
+
         if (groupData.statusSorteio === 'realizado') {
             instructionsEl.textContent = "Sorteio realizado! Clique no seu nome e digite sua senha para ver seu amigo secreto.";
             joinForm.style.display = 'none';
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('nome', 'asc').onSnapshot(snapshot => 
-                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'result')
+                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'result', groupData.tipo)
             );
         } else {
             instructionsEl.textContent = "Para participar, digite seu nome e crie uma senha simples.";
@@ -321,15 +311,19 @@ function setupJoinPage() {
                 const password = document.getElementById('join-password').value;
                 if(name && password){
                     db.collection('grupos').doc(groupId).collection('participantes').add({
-                        nome: name, senha: password, adicionadoEm: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
+                        nome: name, senha: password, adicionadoEm: firebase.firestore.FieldValue.serverTimestamp(), desejos: []
+                    }).then((docRef) => {
                         joinForm.reset();
                         showNotification(`Bem-vindo(a) ao grupo, ${name}!`, 'success');
+                        localStorage.setItem(`participant_${groupId}`, docRef.id);
+                        if (groupData.tipo === 'premium') {
+                            showMyWishlist(groupId, docRef.id);
+                        }
                     });
                 }
             });
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('adicionadoEm', 'asc').onSnapshot(snapshot => 
-                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'join')
+                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'join', groupData.tipo)
             );
         }
     });
@@ -380,6 +374,56 @@ async function realizarSorteio(groupId) {
     batch.update(groupRef, { statusSorteio: "realizado" });
     await batch.commit();
     showNotification("Sorteio realizado com sucesso!", "success");
+}
+
+// --- FUNÇÕES DE LISTA DE DESEJOS ---
+function showMyWishlist(groupId, participantId) {
+    const wishlistSection = document.getElementById('wishlist-section');
+    if (!wishlistSection) return;
+    wishlistSection.style.display = 'block';
+    const wishlistForm = document.getElementById('wishlist-form');
+    const wishInput = document.getElementById('wish-input');
+    const myWishlistContainer = document.getElementById('my-wishlist');
+    const participantRef = db.collection('grupos').doc(groupId).collection('participantes').doc(participantId);
+    participantRef.onSnapshot(doc => {
+        const wishes = doc.exists ? doc.data().desejos : [];
+        renderMyWishes(wishes);
+    });
+    wishlistForm.onsubmit = (e) => {
+        e.preventDefault();
+        const newWish = wishInput.value.trim();
+        if (newWish) {
+            participantRef.update({
+                desejos: firebase.firestore.FieldValue.arrayUnion(newWish)
+            }).then(() => {
+                wishInput.value = '';
+            });
+        }
+    };
+    myWishlistContainer.onclick = (e) => {
+        if (e.target.classList.contains('remove-participant-btn')) {
+            const wishToRemove = e.target.parentElement.querySelector('span').textContent;
+            participantRef.update({
+                desejos: firebase.firestore.FieldValue.arrayRemove(wishToRemove)
+            });
+        }
+    };
+}
+
+function renderMyWishes(wishes) {
+    const myWishlistContainer = document.getElementById('my-wishlist');
+    if (!myWishlistContainer) return;
+    myWishlistContainer.innerHTML = '';
+    if (!wishes || wishes.length === 0) {
+        myWishlistContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Você ainda não adicionou nenhuma sugestão.</p>';
+        return;
+    }
+    wishes.forEach(wish => {
+        const item = document.createElement('div');
+        item.className = 'wish-item';
+        item.innerHTML = `<span>${wish}</span><button class="remove-participant-btn">&times;</button>`;
+        myWishlistContainer.appendChild(item);
+    });
 }
 
 // --- FUNÇÕES DE RENDERIZAÇÃO E UTILIDADE ---
@@ -444,7 +488,7 @@ function renderParticipants(participants, groupId) {
     };
 }
 
-function renderJoinableParticipants(participants, groupId, mode) {
+function renderJoinableParticipants(participants, groupId, mode, groupType) {
     const listContainer = document.getElementById('join-participants-list');
     const resultDisplay = document.getElementById('join-result-display');
     if (!listContainer) return;
@@ -490,10 +534,34 @@ function renderJoinableParticipants(participants, groupId, mode) {
                     if (sorteioDoc.exists) {
                         const receiverId = sorteioDoc.data().tirado;
                         const receiverDoc = await db.collection('grupos').doc(groupId).collection('participantes').doc(receiverId).get();
+                        
                         document.getElementById('join-instructions').textContent = "Guarde bem o seu segredo!";
                         listContainer.style.display = 'none';
                         resultDisplay.style.display = 'block';
-                        resultDisplay.innerHTML = `<p class="result-text">Você tirou:</p><span class="result-name">${receiverDoc.data().nome}</span>`;
+
+                        let receiverWishesHTML = '';
+                        if (groupType === 'premium' && receiverDoc.data().desejos && receiverDoc.data().desejos.length > 0) {
+                            const wishesList = receiverDoc.data().desejos.map(wish => `<li>${wish}</li>`).join('');
+                            receiverWishesHTML = `
+                                <div class="wishlist-display">
+                                    <h4>Lista de Desejos de ${receiverDoc.data().nome}:</h4>
+                                    <ul>${wishesList}</ul>
+                                </div>
+                            `;
+                        } else if (groupType === 'premium') {
+                            receiverWishesHTML = `
+                                <div class="wishlist-display">
+                                    <h4>Lista de Desejos de ${receiverDoc.data().nome}:</h4>
+                                    <p style="color: var(--text-muted);">Esta pessoa ainda não adicionou sugestões.</p>
+                                </div>
+                            `;
+                        }
+
+                        resultDisplay.innerHTML = `
+                            <p class="result-text">Você tirou:</p>
+                            <span class="result-name">${receiverDoc.data().nome}</span>
+                            ${receiverWishesHTML}
+                        `;
                     } else {
                         showNotification('Seu resultado do sorteio ainda não foi encontrado.', 'error');
                     }

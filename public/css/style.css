@@ -34,14 +34,10 @@ a:hover { opacity: 0.8; }
 /* --- Estilos das Páginas de Autenticação e Juntar --- */
 .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background-color: var(--deep-blue); }
 .auth-card { background: var(--darker-blue); padding: 40px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.3); width: 100%; max-width: 450px; text-align: center; border-top: 4px solid var(--red-natal); }
-.auth-card h2 { margin-bottom: 10px; color: var(--snow-white); font-weight: 300; }
-.auth-subtext { margin-bottom: 25px; color: var(--text-muted); font-size: 14px; }
 .form-group { margin-bottom: 20px; text-align: left; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 14px; }
 .form-group input { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 5px; font-size: 16px; background-color: var(--deep-blue); color: var(--snow-white); }
 .form-group input:focus { border-color: var(--red-natal); outline: none; }
-.auth-btn { width: 100%; margin-top: 10px; padding: 12px; font-size: 16px; }
-.auth-card p { margin-top: 20px; color: var(--text-muted); }
 .invite-title { color: var(--gold-cool); font-size: 28px; font-weight: 700; margin-bottom: 20px; word-break: break-word; }
 .join-list-container .join-participant { background-color: rgba(232, 74, 95, 0.1); color: var(--red-natal); border: 1px solid var(--red-natal); padding: 15px; border-radius: 5px; margin-bottom: 10px; text-align: center; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
 .join-list-container .join-participant:hover { background-color: var(--red-natal); color: var(--snow-white); }
@@ -53,15 +49,21 @@ a:hover { opacity: 0.8; }
 .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
 .dashboard-header h2 { font-weight: 700; font-size: 28px; }
 a.grupo-card { text-decoration: none; }
+.grupos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; min-height: 100px; }
 .grupo-card { position: relative; background-color: var(--darker-blue); padding: 20px; border-radius: 8px; border-left: 5px solid var(--red-natal); transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .grupo-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .delete-button { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; color: #555; cursor: pointer; transition: color 0.3s ease; padding: 5px; line-height: 1; }
 .delete-button:hover { color: var(--red-natal); }
-.modal, .action-modal { /* ...código dos modais sem alterações... */ }
+
+/* --- Modais --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+.modal-content { background-color: var(--darker-blue); margin: auto; padding: 30px; border: 1px solid #333; width: 80%; max-width: 500px; border-radius: 8px; position: relative; border-top: 4px solid var(--red-natal); }
+.modal-content h2 { color: var(--snow-white); }
+.close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-button:hover, .close-button:focus { color: var(--snow-white); }
 
 /* --- Página de Gerenciamento e Resultados --- */
 #group-details-container, .draw-section, .invite-link-section { background-color: var(--darker-blue); padding: 30px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; }
-#group-details-container h2 { color: var(--red-natal); }
 .divider { border: none; border-top: 1px solid #333; margin: 30px 0; }
 .participants-section h3 { margin-bottom: 20px; font-size: 24px; }
 .participant-item { display: flex; justify-content: space-between; align-items: center; background: var(--deep-blue); padding: 15px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid var(--red-natal); }
@@ -80,7 +82,7 @@ a.grupo-card { text-decoration: none; }
 .wishlist-display ul { list-style: none; padding-left: 0; }
 .wishlist-display li { background-color: var(--deep-blue); padding: 10px; border-radius: 5px; margin-bottom: 8px; color: var(--snow-white); }
 
-/* --- Notificação Global e Modais --- */
+/* --- Notificação Global e Modais de Ação --- */
 #global-notification { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 16px; font-weight: 600; z-index: 2000; transition: top 0.5s ease-in-out; max-width: 90%; text-align: center; }
 #global-notification.show { top: 20px; }
 #global-notification.success { background-color: var(--ice-blue); color: var(--deep-blue); }
