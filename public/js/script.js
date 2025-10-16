@@ -151,15 +151,54 @@ function setupAuthForms() {
 
 function setupDashboardPage() {
     const logoutButton = document.getElementById('logout-button');
+    const openModalButton = document.getElementById('open-modal-button');
+    const userPlanBadge = document.getElementById('user-plan-badge');
+
     if(logoutButton) logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
     
     auth.onAuthStateChanged(user => {
         if (user) {
-            db.collection('usuarios').doc(user.uid).get().then(doc => {
-                if (doc.exists) document.getElementById('user-greeting').textContent = `Olá, ${doc.data().nome}!`;
+            db.collection('usuarios').doc(user.uid).onSnapshot(userDoc => {
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    document.getElementById('user-greeting').textContent = `Olá, ${userData.nome}!`;
+                    
+                    if (userData.plano === 'premium') {
+                        userPlanBadge.textContent = 'Premium';
+                        userPlanBadge.className = 'plan-badge premium';
+                    } else {
+                        userPlanBadge.textContent = 'Gratuito';
+                        userPlanBadge.className = 'plan-badge free';
+                    }
+                }
             });
+
             db.collection('grupos').where('organizadorId', '==', user.uid).orderBy('criadoEm', 'desc')
-              .onSnapshot(snapshot => renderGroups(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+              .onSnapshot(async (snapshot) => {
+                const userDoc = await db.collection('usuarios').doc(user.uid).get();
+                const userPlan = userDoc.exists ? userDoc.data().plano : 'gratuito';
+
+                if (userPlan === 'gratuito' && snapshot.size >= 1) {
+                    openModalButton.disabled = true;
+                    openModalButton.title = "Usuários do plano gratuito podem criar apenas 1 grupo.";
+                    openModalButton.style.opacity = '0.5';
+                    openModalButton.style.cursor = 'not-allowed';
+                } else {
+                    openModalButton.disabled = false;
+                    openModalButton.title = "";
+                    openModalButton.style.opacity = '1';
+                    openModalButton.style.cursor = 'pointer';
+                }
+                
+                const groupsWithCounts = await Promise.all(snapshot.docs.map(async (doc) => {
+                    const groupData = { id: doc.id, ...doc.data() };
+                    const participantsSnapshot = await db.collection('grupos').doc(doc.id).collection('participantes').get();
+                    groupData.participantCount = participantsSnapshot.size;
+                    return groupData;
+                }));
+
+                renderGroups(groupsWithCounts);
+              });
         } else { window.location.href = 'login.html'; }
     });
 
@@ -197,9 +236,24 @@ function setupDashboardPage() {
             const groupCard = e.target.closest('a.grupo-card');
             const groupId = groupCard.dataset.id;
             const groupName = groupCard.querySelector('h3').textContent;
-            const confirmed = await showCustomConfirm(`Tem certeza que deseja apagar o grupo "${groupName}"?`);
+
+            const confirmed = await showCustomConfirm(`Tem certeza que deseja apagar o grupo "${groupName}"? TODOS os participantes e resultados serão removidos permanentemente.`);
+            
             if (confirmed) {
-                db.collection('grupos').doc(groupId).delete();
+                showNotification("Apagando grupo e todos os seus dados...", "success");
+                try {
+                    const groupRef = db.collection('grupos').doc(groupId);
+                    const participantsSnapshot = await groupRef.collection('participantes').get();
+                    const deleteParticipantsPromises = participantsSnapshot.docs.map(doc => doc.ref.delete());
+                    const sorteioSnapshot = await groupRef.collection('sorteio').get();
+                    const deleteSorteioPromises = sorteioSnapshot.docs.map(doc => doc.ref.delete());
+                    await Promise.all([...deleteParticipantsPromises, ...deleteSorteioPromises]);
+                    await groupRef.delete();
+                    showNotification(`Grupo "${groupName}" apagado com sucesso!`, "success");
+                } catch (error) {
+                    console.error("Erro ao apagar o grupo: ", error);
+                    showNotification("Ocorreu um erro ao tentar apagar o grupo.", "error");
+                }
             }
         }
     });
@@ -218,8 +272,7 @@ function setupGroupPage() {
         document.getElementById('invite-link-input').value = inviteLink;
         document.getElementById('copy-link-button').addEventListener('click', () => {
             navigator.clipboard.writeText(inviteLink).then(() => {
-                document.getElementById('copy-link-button').textContent = 'Copiado!';
-                setTimeout(() => { document.getElementById('copy-link-button').textContent = 'Copiar'; }, 2000);
+                showNotification("Link copiado para a área de transferência!", "success");
             });
         });
     }
@@ -238,16 +291,18 @@ function setupGroupPage() {
                     hoje.setHours(0, 0, 0, 0);
 
                     const rulesSection = document.getElementById('exclusion-rules-section');
-                    if (group.tipo === 'premium') {
-                        rulesSection.style.display = 'block';
-                        renderExclusionRules(group.regrasExclusao || []);
-                    } else {
-                        rulesSection.style.display = 'none';
+                    if (rulesSection) {
+                        if (group.tipo === 'premium') {
+                            rulesSection.style.display = 'block';
+                            renderExclusionRules(group.regrasExclusao || []);
+                        } else {
+                            rulesSection.style.display = 'none';
+                        }
                     }
 
                     if (group.statusSorteio === 'realizado') {
                         sortearButton.style.display = 'none';
-                        rulesSection.style.display = 'none';
+                        if (rulesSection) rulesSection.style.display = 'none';
                         document.getElementById('draw-result-display').innerHTML = '<p>Sorteio concluído! Avise os participantes para conferirem o resultado com a senha que criaram.</p>';
                     } else if (dataSorteio <= hoje) {
                         sortearButton.disabled = false;
@@ -274,45 +329,49 @@ function setupGroupPage() {
             sortearButton.addEventListener('click', () => realizarSorteio(groupId));
 
             const addRuleForm = document.getElementById('add-rule-form');
-            addRuleForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const fromSelect = document.getElementById('rule-from-select');
-                const toSelect = document.getElementById('rule-to-select');
-                const fromId = fromSelect.value;
-                const fromName = fromSelect.options[fromSelect.selectedIndex].text;
-                const toId = toSelect.value;
-                const toName = toSelect.options[toSelect.selectedIndex].text;
+            if (addRuleForm) {
+                addRuleForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const fromSelect = document.getElementById('rule-from-select');
+                    const toSelect = document.getElementById('rule-to-select');
+                    const fromId = fromSelect.value;
+                    const fromName = fromSelect.options[fromSelect.selectedIndex].text;
+                    const toId = toSelect.value;
+                    const toName = toSelect.options[toSelect.selectedIndex].text;
 
-                if (!fromId || !toId) {
-                    showNotification("Por favor, selecione dois participantes.", "error");
-                    return;
-                }
-                if (fromId === toId) {
-                    showNotification("Um participante não pode ser excluído de tirar a si mesmo.", "error");
-                    return;
-                }
-                const newRule = { fromId, fromName, toId, toName };
-                groupRef.update({
-                    regrasExclusao: firebase.firestore.FieldValue.arrayUnion(newRule)
+                    if (!fromId || !toId) {
+                        showNotification("Por favor, selecione dois participantes.", "error");
+                        return;
+                    }
+                    if (fromId === toId) {
+                        showNotification("Um participante não pode ser excluído de tirar a si mesmo.", "error");
+                        return;
+                    }
+                    const newRule = { fromId, fromName, toId, toName };
+                    groupRef.update({
+                        regrasExclusao: firebase.firestore.FieldValue.arrayUnion(newRule)
+                    });
                 });
-            });
+            }
 
             const rulesList = document.getElementById('rules-list');
-            rulesList.addEventListener('click', async (e) => {
-                if (e.target.classList.contains('remove-participant-btn')) {
-                    const ruleItem = e.target.closest('.rule-item');
-                    const fromId = ruleItem.dataset.from;
-                    const toId = ruleItem.dataset.to;
-                    const groupDoc = await groupRef.get();
-                    const currentRules = groupDoc.data().regrasExclusao || [];
-                    const ruleToRemove = currentRules.find(rule => rule.fromId === fromId && rule.toId === toId);
-                    if (ruleToRemove) {
-                        groupRef.update({
-                            regrasExclusao: firebase.firestore.FieldValue.arrayRemove(ruleToRemove)
-                        });
+            if (rulesList) {
+                rulesList.addEventListener('click', async (e) => {
+                    if (e.target.classList.contains('remove-participant-btn')) {
+                        const ruleItem = e.target.closest('.rule-item');
+                        const fromId = ruleItem.dataset.from;
+                        const toId = ruleItem.dataset.to;
+                        const groupDoc = await groupRef.get();
+                        const currentRules = groupDoc.data().regrasExclusao || [];
+                        const ruleToRemove = currentRules.find(rule => rule.fromId === fromId && rule.toId === toId);
+                        if (ruleToRemove) {
+                            groupRef.update({
+                                regrasExclusao: firebase.firestore.FieldValue.arrayRemove(ruleToRemove)
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         } else if (!user) {
             window.location.href = 'login.html';
         }
@@ -384,15 +443,13 @@ function setupJoinPage() {
     });
 }
 
-// --- FUNÇÃO DE SORTEIO (ATUALIZADA COM O ALGORITMO INTELIGENTE) ---
+// --- FUNÇÕES DE SORTEIO ---
 async function realizarSorteio(groupId) {
     const confirmed = await showCustomConfirm("Tem certeza que deseja realizar o sorteio? Esta ação não pode ser desfeita.");
     if (!confirmed) return;
-
     const sortearButton = document.getElementById('sortear-button');
     sortearButton.disabled = true;
     sortearButton.textContent = "Sorteando...";
-
     const groupRef = db.collection('grupos').doc(groupId);
     const participantsRef = groupRef.collection('participantes');
     
@@ -407,11 +464,9 @@ async function realizarSorteio(groupId) {
         sortearButton.textContent = "Sortear Agora!";
         return;
     }
-
     const participantsData = participantsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     const exclusionRules = groupDoc.exists ? groupDoc.data().regrasExclusao || [] : [];
-
-    let givers = [...participantsData];
+    const givers = [...participantsData];
     let receivers = [...participantsData];
     let sorteioValido = false;
     let tentativas = 0;
@@ -420,16 +475,13 @@ async function realizarSorteio(groupId) {
         tentativas++;
         sorteioValido = true;
         receivers.sort(() => Math.random() - 0.5); 
-
         for (let i = 0; i < givers.length; i++) {
             const giverId = givers[i].id;
             const receiverId = receivers[i].id;
-
             if (giverId === receiverId) {
                 sorteioValido = false;
                 break;
             }
-
             for (const rule of exclusionRules) {
                 if (rule.fromId === giverId && rule.toId === receiverId) {
                     sorteioValido = false;
@@ -439,25 +491,21 @@ async function realizarSorteio(groupId) {
             if (!sorteioValido) break;
         }
     }
-
     if (!sorteioValido) {
         showNotification("Não foi possível gerar um sorteio que respeite todas as regras. Tente remover algumas regras ou adicionar mais participantes.", "error");
         sortearButton.disabled = false;
         sortearButton.textContent = "Sortear Agora!";
         return;
     }
-    
     const batch = db.batch();
     for (let i = 0; i < givers.length; i++) {
         const sorteioDocRef = groupRef.collection('sorteio').doc(givers[i].id);
         batch.set(sorteioDocRef, { tirado: receivers[i].id });
     }
-    
     batch.update(groupRef, { statusSorteio: "realizado" });
     await batch.commit();
     showNotification("Sorteio realizado com sucesso!", "success");
 }
-
 
 // --- FUNÇÕES DE LISTA DE DESEJOS ---
 function showMyWishlist(groupId, participantId) {
@@ -534,13 +582,11 @@ function updateRuleSelectors(participants) {
 function renderExclusionRules(rules) {
     const listContainer = document.getElementById('rules-list');
     if (!listContainer) return;
-
     listContainer.innerHTML = '';
     if (!rules || rules.length === 0) {
         listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhuma regra de exclusão criada.</p>';
         return;
     }
-
     rules.forEach(rule => {
         const item = document.createElement('div');
         item.className = 'rule-item';
@@ -585,6 +631,12 @@ function renderGroups(groups) {
             <h3>${group.nome}</h3>
             <p>Data do Sorteio: <strong>${dataFormatada}</strong></p>
             <p>Faixa de Preço: <strong>R$ ${group.faixaPreco || 'Não definida'}</strong></p>
+            <div class="group-info">
+                <span class="participant-count">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
+                    ${group.participantCount} Participantes
+                </span>
+            </div>
         `;
         listaContainer.appendChild(groupLink);
     });
