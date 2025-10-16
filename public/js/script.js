@@ -558,19 +558,15 @@ function updateRuleSelectors(participants) {
     const fromSelect = document.getElementById('rule-from-select');
     const toSelect = document.getElementById('rule-to-select');
     if (!fromSelect || !toSelect) return;
-
     const currentFromValue = fromSelect.value;
     const currentToValue = toSelect.value;
-
     fromSelect.innerHTML = '<option value="" disabled>De...</option>';
     toSelect.innerHTML = '<option value="" disabled>Para...</option>';
-
     participants.forEach(p => {
         const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
         fromSelect.innerHTML += optionHTML;
         toSelect.innerHTML += optionHTML;
     });
-
     fromSelect.value = currentFromValue;
     toSelect.value = currentToValue;
 }
