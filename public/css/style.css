@@ -119,3 +119,43 @@ a.grupo-card { text-decoration: none; }
     .hero p { font-size: 16px; }
     .dashboard-header { flex-direction: column; gap: 20px; }
 }
+
+/* --- Estilos das Regras de Exclusão --- */
+.premium-star {
+    color: var(--gold-cool);
+    margin-right: 5px;
+}
+
+.rule-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+}
+
+.rule-form select {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: var(--deep-blue);
+    color: var(--snow-white);
+    min-width: 150px;
+}
+
+.rule-form span {
+    font-weight: 600;
+}
+
+.rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--deep-blue);
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--ice-blue); /* Azul gelo para regras */
+}
