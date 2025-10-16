@@ -534,11 +534,13 @@ function updateRuleSelectors(participants) {
 function renderExclusionRules(rules) {
     const listContainer = document.getElementById('rules-list');
     if (!listContainer) return;
+
     listContainer.innerHTML = '';
     if (!rules || rules.length === 0) {
         listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhuma regra de exclusão criada.</p>';
         return;
     }
+
     rules.forEach(rule => {
         const item = document.createElement('div');
         item.className = 'rule-item';
