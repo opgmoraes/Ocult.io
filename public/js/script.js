@@ -384,48 +384,75 @@ function setupJoinPage() {
     });
 }
 
-// --- FUNÇÕES DE SORTEIO ---
+// --- FUNÇÃO DE SORTEIO (ATUALIZADA COM O ALGORITMO INTELIGENTE) ---
 async function realizarSorteio(groupId) {
     const confirmed = await showCustomConfirm("Tem certeza que deseja realizar o sorteio? Esta ação não pode ser desfeita.");
     if (!confirmed) return;
+
     const sortearButton = document.getElementById('sortear-button');
     sortearButton.disabled = true;
     sortearButton.textContent = "Sorteando...";
-    const snapshot = await db.collection('grupos').doc(groupId).collection('participantes').get();
-    if (snapshot.size < 3) {
+
+    const groupRef = db.collection('grupos').doc(groupId);
+    const participantsRef = groupRef.collection('participantes');
+    
+    const [groupDoc, participantsSnapshot] = await Promise.all([
+        groupRef.get(),
+        participantsRef.get()
+    ]);
+
+    if (participantsSnapshot.size < 3) {
         showNotification("É preciso ter no mínimo 3 participantes para realizar o sorteio.", "error");
         sortearButton.disabled = false;
         sortearButton.textContent = "Sortear Agora!";
         return;
     }
-    const participantsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const givers = [...participantsData];
-    let receivers = [...participantsData].sort(() => Math.random() - 0.5);
+
+    const participantsData = participantsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exclusionRules = groupDoc.exists ? groupDoc.data().regrasExclusao || [] : [];
+
+    let givers = [...participantsData];
+    let receivers = [...participantsData];
     let sorteioValido = false;
     let tentativas = 0;
-    while(!sorteioValido && tentativas < 100) {
+
+    while (!sorteioValido && tentativas < 100) {
         tentativas++;
         sorteioValido = true;
+        receivers.sort(() => Math.random() - 0.5); 
+
         for (let i = 0; i < givers.length; i++) {
-            if (givers[i].id === receivers[i].id) {
+            const giverId = givers[i].id;
+            const receiverId = receivers[i].id;
+
+            if (giverId === receiverId) {
                 sorteioValido = false;
-                receivers.sort(() => Math.random() - 0.5);
                 break;
             }
+
+            for (const rule of exclusionRules) {
+                if (rule.fromId === giverId && rule.toId === receiverId) {
+                    sorteioValido = false;
+                    break;
+                }
+            }
+            if (!sorteioValido) break;
         }
     }
+
     if (!sorteioValido) {
-        showNotification("Não foi possível gerar um sorteio válido. Tente novamente.", "error");
+        showNotification("Não foi possível gerar um sorteio que respeite todas as regras. Tente remover algumas regras ou adicionar mais participantes.", "error");
         sortearButton.disabled = false;
         sortearButton.textContent = "Sortear Agora!";
         return;
     }
+    
     const batch = db.batch();
     for (let i = 0; i < givers.length; i++) {
-        const sorteioDocRef = db.collection('grupos').doc(groupId).collection('sorteio').doc(givers[i].id);
+        const sorteioDocRef = groupRef.collection('sorteio').doc(givers[i].id);
         batch.set(sorteioDocRef, { tirado: receivers[i].id });
     }
-    const groupRef = db.collection('grupos').doc(groupId);
+    
     batch.update(groupRef, { statusSorteio: "realizado" });
     await batch.commit();
     showNotification("Sorteio realizado com sucesso!", "success");
@@ -487,14 +514,20 @@ function updateRuleSelectors(participants) {
     const toSelect = document.getElementById('rule-to-select');
     if (!fromSelect || !toSelect) return;
 
-    fromSelect.innerHTML = '<option value="" disabled selected>De...</option>';
-    toSelect.innerHTML = '<option value="" disabled selected>Para...</option>';
+    const currentFromValue = fromSelect.value;
+    const currentToValue = toSelect.value;
+
+    fromSelect.innerHTML = '<option value="" disabled>De...</option>';
+    toSelect.innerHTML = '<option value="" disabled>Para...</option>';
 
     participants.forEach(p => {
         const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
         fromSelect.innerHTML += optionHTML;
         toSelect.innerHTML += optionHTML;
     });
+
+    fromSelect.value = currentFromValue;
+    toSelect.value = currentToValue;
 }
 
 function renderExclusionRules(rules) {
