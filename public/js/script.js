@@ -458,6 +458,7 @@ async function realizarSorteio(groupId) {
     showNotification("Sorteio realizado com sucesso!", "success");
 }
 
+
 // --- FUNÇÕES DE LISTA DE DESEJOS ---
 function showMyWishlist(groupId, participantId) {
     const wishlistSection = document.getElementById('wishlist-section');
@@ -533,13 +534,11 @@ function updateRuleSelectors(participants) {
 function renderExclusionRules(rules) {
     const listContainer = document.getElementById('rules-list');
     if (!listContainer) return;
-
     listContainer.innerHTML = '';
     if (!rules || rules.length === 0) {
         listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhuma regra de exclusão criada.</p>';
         return;
     }
-
     rules.forEach(rule => {
         const item = document.createElement('div');
         item.className = 'rule-item';
