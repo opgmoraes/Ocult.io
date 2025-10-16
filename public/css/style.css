@@ -31,13 +31,32 @@ a:hover { opacity: 0.8; }
 .btn-secundario:hover { background-color: var(--red-natal); color: var(--snow-white); }
 .rodape { text-align: center; padding: 40px 0; border-top: 1px solid var(--borda-suave); background-color: var(--darker-blue); color: var(--text-muted); }
 
+/* --- Estilos da Landing Page (index.html) --- */
+.hero { text-align: center; padding: 100px 0; }
+.hero h1 { font-size: 48px; margin-bottom: 15px; color: var(--red-natal); font-weight: 800; }
+.hero p { font-size: 18px; max-width: 650px; margin: 0 auto 30px; color: var(--snow-white); font-weight: 300; }
+.planos { padding: 80px 0; background-color: var(--darker-blue); text-align: center; }
+.planos h2 { font-size: 36px; margin-bottom: 50px; }
+.planos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+.plano-card { background-color: var(--deep-blue); padding: 40px; border-radius: 8px; border: 1px solid rgba(232, 74, 95, 0.3); text-align: left; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.plano-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(232, 74, 95, 0.1); }
+.plano-card.destaque { border-color: var(--red-natal); border-width: 2px; }
+.plano-card h3 { font-size: 24px; margin-bottom: 15px; color: var(--snow-white); }
+.plano-card .preco { font-size: 28px; font-weight: 700; color: var(--gold-cool); margin-bottom: 20px; }
+.plano-card ul { list-style: none; margin-bottom: 30px; }
+.plano-card ul li { margin-bottom: 10px; }
+
 /* --- Estilos das Páginas de Autenticação e Juntar --- */
 .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background-color: var(--deep-blue); }
 .auth-card { background: var(--darker-blue); padding: 40px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.3); width: 100%; max-width: 450px; text-align: center; border-top: 4px solid var(--red-natal); }
+.auth-card h2 { margin-bottom: 10px; color: var(--snow-white); font-weight: 300; }
+.auth-subtext { margin-bottom: 25px; color: var(--text-muted); font-size: 14px; }
 .form-group { margin-bottom: 20px; text-align: left; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 14px; }
 .form-group input { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 5px; font-size: 16px; background-color: var(--deep-blue); color: var(--snow-white); }
 .form-group input:focus { border-color: var(--red-natal); outline: none; }
+.auth-btn { width: 100%; margin-top: 10px; padding: 12px; font-size: 16px; }
+.auth-card p { margin-top: 20px; color: var(--text-muted); }
 .invite-title { color: var(--gold-cool); font-size: 28px; font-weight: 700; margin-bottom: 20px; word-break: break-word; }
 .join-list-container .join-participant { background-color: rgba(232, 74, 95, 0.1); color: var(--red-natal); border: 1px solid var(--red-natal); padding: 15px; border-radius: 5px; margin-bottom: 10px; text-align: center; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
 .join-list-container .join-participant:hover { background-color: var(--red-natal); color: var(--snow-white); }
@@ -56,14 +75,19 @@ a.grupo-card { text-decoration: none; }
 .delete-button:hover { color: var(--red-natal); }
 
 /* --- Modais --- */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
-.modal-content { background-color: var(--darker-blue); margin: auto; padding: 30px; border: 1px solid #333; width: 80%; max-width: 500px; border-radius: 8px; position: relative; border-top: 4px solid var(--red-natal); }
-.modal-content h2 { color: var(--snow-white); }
+.modal, .action-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+.modal-content, .action-modal-content { background-color: var(--darker-blue); margin: auto; padding: 30px; border: 1px solid #333; width: 80%; max-width: 500px; border-radius: 8px; position: relative; border-top: 4px solid var(--red-natal); }
+.modal-content h2, .action-modal-content p { color: var(--snow-white); }
 .close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
 .close-button:hover, .close-button:focus { color: var(--snow-white); }
+.action-modal-content p { font-size: 18px; margin-bottom: 20px; }
+.action-modal-content input { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; margin-bottom: 20px; font-size: 16px; background-color: var(--deep-blue); color: var(--snow-white); }
+.action-modal-content input:focus { border-color: var(--red-natal); outline: none; }
+.action-modal-buttons { display: flex; justify-content: center; gap: 15px; }
 
 /* --- Página de Gerenciamento e Resultados --- */
 #group-details-container, .draw-section, .invite-link-section { background-color: var(--darker-blue); padding: 30px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; }
+#group-details-container h2 { color: var(--red-natal); }
 .divider { border: none; border-top: 1px solid #333; margin: 30px 0; }
 .participants-section h3 { margin-bottom: 20px; font-size: 24px; }
 .participant-item { display: flex; justify-content: space-between; align-items: center; background: var(--deep-blue); padding: 15px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid var(--red-natal); }
@@ -82,17 +106,11 @@ a.grupo-card { text-decoration: none; }
 .wishlist-display ul { list-style: none; padding-left: 0; }
 .wishlist-display li { background-color: var(--deep-blue); padding: 10px; border-radius: 5px; margin-bottom: 8px; color: var(--snow-white); }
 
-/* --- Notificação Global e Modais de Ação --- */
+/* --- Notificação Global --- */
 #global-notification { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 16px; font-weight: 600; z-index: 2000; transition: top 0.5s ease-in-out; max-width: 90%; text-align: center; }
 #global-notification.show { top: 20px; }
 #global-notification.success { background-color: var(--ice-blue); color: var(--deep-blue); }
 #global-notification.error { background-color: var(--red-natal); color: var(--snow-white); }
-.action-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
-.action-modal-content { background-color: var(--darker-blue); margin: auto; padding: 30px; border: 1px solid #333; width: 80%; max-width: 400px; border-radius: 8px; position: relative; border-top: 4px solid var(--red-natal); }
-.action-modal-content p { font-size: 18px; margin-bottom: 20px; }
-.action-modal-content input { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; margin-bottom: 20px; font-size: 16px; background-color: var(--deep-blue); color: var(--snow-white); }
-.action-modal-content input:focus { border-color: var(--red-natal); outline: none; }
-.action-modal-buttons { display: flex; justify-content: center; gap: 15px; }
 
 /* --- Responsividade --- */
 @media (max-width: 768px) {
@@ -100,43 +118,4 @@ a.grupo-card { text-decoration: none; }
     .hero h1 { font-size: 32px; }
     .hero p { font-size: 16px; }
     .dashboard-header { flex-direction: column; gap: 20px; }
-}
-/* --- Estilos das Regras de Exclusão --- */
-.premium-star {
-    color: var(--gold-cool);
-    margin-right: 5px;
-}
-
-.rule-form {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
-}
-
-.rule-form select {
-    flex-grow: 1;
-    padding: 12px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: var(--deep-blue);
-    color: var(--snow-white);
-    min-width: 150px;
-}
-
-.rule-form span {
-    font-weight: 600;
-}
-
-.rule-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--deep-blue);
-    padding: 12px 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    border-left: 3px solid var(--ice-blue); /* Azul gelo para regras */
 }
