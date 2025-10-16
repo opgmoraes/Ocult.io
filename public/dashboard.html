@@ -56,9 +56,29 @@
 
         </div>
 
-        <div id="action-modal" class="action-modal"></div>
+        <div id="action-modal" class="action-modal">
+            <div class="action-modal-content">
+                <p id="action-modal-text"></p>
+                <input type="password" id="action-modal-input" style="display: none;">
+                <div class="action-modal-buttons">
+                    <button id="action-modal-cancel" class="btn-secundario">Cancelar</button>
+                    <button id="action-modal-ok" class="btn-principal">OK</button>
+                </div>
+            </div>
+        </div>
     </main>
-    <div id="create-group-modal" class="modal"></div>
+    <div id="create-group-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Criar Novo Grupo</h2>
+            <form id="create-group-form">
+                <div class="form-group"><label for="group-name">Nome do Grupo</label><input type="text" id="group-name" required placeholder="Ex: Amigo Secreto da Família"></div>
+                <div class="form-group"><label for="draw-date">Data do Sorteio</label><input type="date" id="draw-date" required></div>
+                <div class="form-group"><label for="price-range">Faixa de Preço (R$)</label><input type="text" id="price-range" placeholder="Ex: 50,00 - 100,00"></div>
+                <button type="submit" class="btn-principal">Salvar Grupo</button>
+            </form>
+        </div>
+    </div>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
