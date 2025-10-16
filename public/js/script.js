@@ -183,7 +183,8 @@ function setupDashboardPage() {
             faixaPreco: document.getElementById('price-range').value, 
             organizadorId: user.uid, 
             criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-            tipo: userPlan 
+            tipo: userPlan,
+            regrasExclusao: [] 
         }).then(() => { 
             modal.style.display = 'none'; 
             this.reset(); 
@@ -235,9 +236,18 @@ function setupGroupPage() {
                     document.getElementById('group-price-range').textContent = group.faixaPreco || '--,--';
                     const hoje = new Date();
                     hoje.setHours(0, 0, 0, 0);
+
+                    const rulesSection = document.getElementById('exclusion-rules-section');
+                    if (group.tipo === 'premium') {
+                        rulesSection.style.display = 'block';
+                        renderExclusionRules(group.regrasExclusao || []);
+                    } else {
+                        rulesSection.style.display = 'none';
+                    }
+
                     if (group.statusSorteio === 'realizado') {
-                        sortearButton.disabled = true;
-                        sortearButton.textContent = 'Sorteio Realizado!';
+                        sortearButton.style.display = 'none';
+                        rulesSection.style.display = 'none';
                         document.getElementById('draw-result-display').innerHTML = '<p>Sorteio concluído! Avise os participantes para conferirem o resultado com a senha que criaram.</p>';
                     } else if (dataSorteio <= hoje) {
                         sortearButton.disabled = false;
@@ -246,8 +256,8 @@ function setupGroupPage() {
                         sortearButton.disabled = true;
                         sortearButton.textContent = `Aguardando a data do sorteio`;
                     }
-                } else if(doc.exists) { // Se o grupo existe, mas não sou o organizador
-                    showNotification("Você não tem permissão para gerenciar este grupo.", "error");
+                } else if(doc.exists) {
+                    showNotification("Você não é o organizador deste grupo.", "error");
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
                 } else {
                     window.location.href = 'dashboard.html';
@@ -255,9 +265,54 @@ function setupGroupPage() {
             });
 
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('adicionadoEm', 'asc')
-              .onSnapshot(snapshot => renderParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId));
+              .onSnapshot(snapshot => {
+                  const participants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                  renderParticipants(participants, groupId);
+                  updateRuleSelectors(participants);
+              });
             
             sortearButton.addEventListener('click', () => realizarSorteio(groupId));
+
+            const addRuleForm = document.getElementById('add-rule-form');
+            addRuleForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fromSelect = document.getElementById('rule-from-select');
+                const toSelect = document.getElementById('rule-to-select');
+                const fromId = fromSelect.value;
+                const fromName = fromSelect.options[fromSelect.selectedIndex].text;
+                const toId = toSelect.value;
+                const toName = toSelect.options[toSelect.selectedIndex].text;
+
+                if (!fromId || !toId) {
+                    showNotification("Por favor, selecione dois participantes.", "error");
+                    return;
+                }
+                if (fromId === toId) {
+                    showNotification("Um participante não pode ser excluído de tirar a si mesmo.", "error");
+                    return;
+                }
+                const newRule = { fromId, fromName, toId, toName };
+                groupRef.update({
+                    regrasExclusao: firebase.firestore.FieldValue.arrayUnion(newRule)
+                });
+            });
+
+            const rulesList = document.getElementById('rules-list');
+            rulesList.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('remove-participant-btn')) {
+                    const ruleItem = e.target.closest('.rule-item');
+                    const fromId = ruleItem.dataset.from;
+                    const toId = ruleItem.dataset.to;
+                    const groupDoc = await groupRef.get();
+                    const currentRules = groupDoc.data().regrasExclusao || [];
+                    const ruleToRemove = currentRules.find(rule => rule.fromId === fromId && rule.toId === toId);
+                    if (ruleToRemove) {
+                        groupRef.update({
+                            regrasExclusao: firebase.firestore.FieldValue.arrayRemove(ruleToRemove)
+                        });
+                    }
+                }
+            });
         } else if (!user) {
             window.location.href = 'login.html';
         }
@@ -423,6 +478,45 @@ function renderMyWishes(wishes) {
         item.className = 'wish-item';
         item.innerHTML = `<span>${wish}</span><button class="remove-participant-btn">&times;</button>`;
         myWishlistContainer.appendChild(item);
+    });
+}
+
+// --- FUNÇÕES DE REGRAS DE EXCLUSÃO ---
+function updateRuleSelectors(participants) {
+    const fromSelect = document.getElementById('rule-from-select');
+    const toSelect = document.getElementById('rule-to-select');
+    if (!fromSelect || !toSelect) return;
+
+    fromSelect.innerHTML = '<option value="" disabled selected>De...</option>';
+    toSelect.innerHTML = '<option value="" disabled selected>Para...</option>';
+
+    participants.forEach(p => {
+        const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
+        fromSelect.innerHTML += optionHTML;
+        toSelect.innerHTML += optionHTML;
+    });
+}
+
+function renderExclusionRules(rules) {
+    const listContainer = document.getElementById('rules-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+    if (!rules || rules.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhuma regra de exclusão criada.</p>';
+        return;
+    }
+
+    rules.forEach(rule => {
+        const item = document.createElement('div');
+        item.className = 'rule-item';
+        item.dataset.from = rule.fromId;
+        item.dataset.to = rule.toId;
+        item.innerHTML = `
+            <span><strong>${rule.fromName}</strong> não pode tirar <strong>${rule.toName}</strong></span>
+            <button class="remove-participant-btn" title="Remover regra">&times;</button>
+        `;
+        listContainer.appendChild(item);
     });
 }
 
