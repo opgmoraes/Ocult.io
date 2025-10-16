@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Grupo - Ocult.io</title>
-    <link rel="icon" type="image/png" href="images/favicon.jpg">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -42,9 +42,25 @@
                 </div>
             </div>
             <hr class="divider">
+
+            <div id="exclusion-rules-section" class="participants-section" style="display: none;">
+                <h3><span class="premium-star">★</span> Regras de Exclusão (Premium)</h3>
+                <p class="auth-subtext">Defina aqui os pares que não podem se tirar no sorteio.</p>
+                <form id="add-rule-form" class="rule-form">
+                    <select id="rule-from-select" required><option>Carregando...</option></select>
+                    <span>não pode tirar</span>
+                    <select id="rule-to-select" required><option>Carregando...</option></select>
+                    <button type="submit" class="btn-principal">Adicionar Regra</button>
+                </form>
+                <div id="rules-list" class="rules-list-container">
+                    </div>
+            </div>
+            
             <div class="participants-section">
                 <h3>Participantes que já entraram</h3>
-                <div id="participants-list" class="participants-list-container"></div>
+                <div id="participants-list" class="participants-list-container">
+                    <p>Aguardando participantes...</p>
+                </div>
             </div>
         </div>
         
