@@ -127,7 +127,18 @@ a.grupo-card { text-decoration: none; }
 #global-notification.success { background-color: var(--ice-blue); color: var(--deep-blue); }
 #global-notification.error { background-color: var(--red-natal); color: var(--snow-white); }
 
+/* --- Estilo do Aviso de E-mail --- */
+.disclaimer-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.4;
+}
 /* --- Responsividade --- */
+
 @media (max-width: 768px) {
     .planos-grid { grid-template-columns: 1fr; }
     .hero h1 { font-size: 32px; }

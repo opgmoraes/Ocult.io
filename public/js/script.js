@@ -204,7 +204,7 @@ function setupDashboardPage() {
 
     const createGroupForm = document.getElementById('create-group-form');
     const modal = document.getElementById('create-group-modal');
-    document.getElementById('open-modal-button').onclick = () => { modal.style.display = 'block'; };
+    if(openModalButton) openModalButton.onclick = () => { modal.style.display = 'block'; };
     document.querySelector('.close-button').onclick = () => { modal.style.display = 'none'; };
     window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
     
@@ -212,10 +212,8 @@ function setupDashboardPage() {
         e.preventDefault(); 
         const user = auth.currentUser;
         if (!user) return;
-
         const userDoc = await db.collection('usuarios').doc(user.uid).get();
         const userPlan = userDoc.exists ? userDoc.data().plano : 'gratuito';
-
         db.collection('grupos').add({ 
             nome: document.getElementById('group-name').value, 
             dataSorteio: document.getElementById('draw-date').value, 
@@ -236,9 +234,7 @@ function setupDashboardPage() {
             const groupCard = e.target.closest('a.grupo-card');
             const groupId = groupCard.dataset.id;
             const groupName = groupCard.querySelector('h3').textContent;
-
             const confirmed = await showCustomConfirm(`Tem certeza que deseja apagar o grupo "${groupName}"? TODOS os participantes e resultados serão removidos permanentemente.`);
-            
             if (confirmed) {
                 showNotification("Apagando grupo e todos os seus dados...", "success");
                 try {
