@@ -162,13 +162,16 @@ function setupDashboardPage() {
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     document.getElementById('user-greeting').textContent = `Olá, ${userData.nome}!`;
+                    const premiumBanner = document.querySelector('.premium-banner');
                     
                     if (userData.plano === 'premium') {
                         userPlanBadge.textContent = 'Premium';
                         userPlanBadge.className = 'plan-badge premium';
+                        if (premiumBanner) premiumBanner.style.display = 'none';
                     } else {
                         userPlanBadge.textContent = 'Gratuito';
                         userPlanBadge.className = 'plan-badge free';
+                        if (premiumBanner) premiumBanner.style.display = 'grid';
                     }
                 }
             });
@@ -560,8 +563,8 @@ function updateRuleSelectors(participants) {
     if (!fromSelect || !toSelect) return;
     const currentFromValue = fromSelect.value;
     const currentToValue = toSelect.value;
-    fromSelect.innerHTML = '<option value="" disabled>De...</option>';
-    toSelect.innerHTML = '<option value="" disabled>Para...</option>';
+    fromSelect.innerHTML = '<option value="" disabled selected>De...</option>';
+    toSelect.innerHTML = '<option value="" disabled selected>Para...</option>';
     participants.forEach(p => {
         const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
         fromSelect.innerHTML += optionHTML;
