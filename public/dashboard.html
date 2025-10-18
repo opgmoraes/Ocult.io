@@ -10,6 +10,7 @@
 </head>
 <body>
     <div id="global-notification"></div>
+
     <header class="cabecalho">
         <div class="container">
             <a href="index.html" class="logo"><img src="images/logo.png" alt="Ocult.io Logo"></a>
@@ -27,13 +28,14 @@
                 <button id="open-modal-button" class="btn-principal">Criar Novo Grupo</button>
             </div>
             <div id="grupos-lista" class="grupos-grid"></div>
+
             <div class="premium-banner">
                 <div class="premium-pitch">
                     <h3><span class="premium-star">★</span> Desbloqueie o Poder Total do Ocult.io</h3>
                     <ul class="premium-features">
-                        <li><svg></svg> Grupos e Participantes Ilimitados</li>
-                        <li><svg></svg> Lista de Desejos para Presentes</li>
-                        <li><svg></svg> Regras de Exclusão (Ex: A não tira B)</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg> Grupos e Participantes Ilimitados</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg> Lista de Desejos para Presentes</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg> Regras de Exclusão (Ex: A não tira B)</li>
                     </ul>
                 </div>
                 <div class="premium-action">
@@ -43,9 +45,11 @@
                 </div>
             </div>
         </div>
+
         <div id="action-modal" class="action-modal"></div>
     </main>
     <div id="create-group-modal" class="modal"></div>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
