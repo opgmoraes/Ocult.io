@@ -75,12 +75,26 @@ function showCustomPrompt(message, type = 'text') {
 
 // --- LÓGICA CENTRAL ---
 document.addEventListener('DOMContentLoaded', () => {
+    handleRedirectIntent();
     const pathname = window.location.pathname;
     if (pathname.includes('dashboard.html')) setupDashboardPage();
     else if (pathname.includes('grupo.html')) setupGroupPage();
     else if (pathname.includes('juntar.html')) setupJoinPage();
     setupAuthForms();
 });
+
+// --- FUNÇÃO PARA GERENCIAR O REDIRECT PREMIUM ---
+function handleRedirectIntent() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirect');
+    if (redirect === 'premium') {
+        localStorage.setItem('upgradeIntent', 'true');
+        const loginRedirectLink = document.getElementById('login-redirect-link');
+        if (loginRedirectLink) {
+            loginRedirectLink.href = 'login.html?redirect=premium';
+        }
+    }
+}
 
 // --- FUNÇÕES DE SETUP ---
 function setupAuthForms() {
@@ -150,6 +164,12 @@ function setupAuthForms() {
 }
 
 function setupDashboardPage() {
+    if (localStorage.getItem('upgradeIntent') === 'true') {
+        localStorage.removeItem('upgradeIntent');
+        window.location.href = 'https://global.tribopay.com.br/pkhnu2yi91';
+        return; 
+    }
+
     const logoutButton = document.getElementById('logout-button');
     const openModalButton = document.getElementById('open-modal-button');
     const userPlanBadge = document.getElementById('user-plan-badge');
@@ -199,7 +219,6 @@ function setupDashboardPage() {
                     groupData.participantCount = participantsSnapshot.size;
                     return groupData;
                 }));
-
                 renderGroups(groupsWithCounts);
               });
         } else { window.location.href = 'login.html'; }
@@ -563,8 +582,8 @@ function updateRuleSelectors(participants) {
     if (!fromSelect || !toSelect) return;
     const currentFromValue = fromSelect.value;
     const currentToValue = toSelect.value;
-    fromSelect.innerHTML = '<option value="" disabled selected>De...</option>';
-    toSelect.innerHTML = '<option value="" disabled selected>Para...</option>';
+    fromSelect.innerHTML = '<option value="" disabled>De...</option>';
+    toSelect.innerHTML = '<option value="" disabled>Para...</option>';
     participants.forEach(p => {
         const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
         fromSelect.innerHTML += optionHTML;
