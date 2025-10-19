@@ -166,8 +166,8 @@ function setupAuthForms() {
 function setupDashboardPage() {
     if (localStorage.getItem('upgradeIntent') === 'true') {
         localStorage.removeItem('upgradeIntent');
-        window.location.href = 'https://global.tribopay.com.br/pkhnu2yi91';
-        return; 
+        window.location.href = 'https://pay.cakto.com.br/sbiiqte_611960';
+        return;
     }
 
     const logoutButton = document.getElementById('logout-button');
@@ -244,9 +244,10 @@ function setupDashboardPage() {
             criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
             tipo: userPlan,
             regrasExclusao: [] 
-        }).then(() => { 
+        }).then((docRef) => { 
             modal.style.display = 'none'; 
-            this.reset(); 
+            this.reset();
+            window.location.href = `grupo.html?id=${docRef.id}`;
         }); 
     });
     
@@ -338,8 +339,15 @@ function setupGroupPage() {
             });
 
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('adicionadoEm', 'asc')
-              .onSnapshot(snapshot => {
+              .onSnapshot(async (snapshot) => {
                   const participants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                  const groupDoc = await groupRef.get();
+                  const groupType = groupDoc.exists ? groupDoc.data().tipo : 'gratuito';
+                  
+                  if (groupType === 'gratuito' && participants.length >= 10) {
+                      showNotification("Limite de 10 participantes atingido para o plano gratuito.", "error");
+                  }
+                  
                   renderParticipants(participants, groupId);
                   updateRuleSelectors(participants);
               });
@@ -430,15 +438,25 @@ function setupJoinPage() {
             instructionsEl.textContent = "Sorteio realizado! Clique no seu nome e digite sua senha para ver seu amigo secreto.";
             joinForm.style.display = 'none';
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('nome', 'asc').onSnapshot(snapshot => 
-                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'result', groupData.tipo)
+                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'result', groupData.tipo, myParticipantId)
             );
         } else {
             instructionsEl.textContent = "Para participar, digite seu nome e crie uma senha simples.";
             joinForm.style.display = 'block';
             joinListTitle.style.display = 'block';
             joinDivider.style.display = 'block';
-            joinForm.addEventListener('submit', (e) => {
+            joinForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const groupDoc = await groupRef.get();
+                const groupType = groupDoc.exists ? groupDoc.data().tipo : 'gratuito';
+                const participantsSnapshot = await db.collection('grupos').doc(groupId).collection('participantes').get();
+
+                if(groupType === 'gratuito' && participantsSnapshot.size >= 10){
+                    showNotification("Este grupo atingiu o limite de 10 participantes do plano gratuito.", "error");
+                    return;
+                }
+
                 const name = document.getElementById('join-name').value.trim();
                 const password = document.getElementById('join-password').value;
                 if(name && password){
@@ -455,7 +473,7 @@ function setupJoinPage() {
                 }
             });
             db.collection('grupos').doc(groupId).collection('participantes').orderBy('adicionadoEm', 'asc').onSnapshot(snapshot => 
-                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'join', groupData.tipo)
+                renderJoinableParticipants(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), groupId, 'join', groupData.tipo, myParticipantId)
             );
         }
     });
@@ -682,7 +700,7 @@ function renderParticipants(participants, groupId) {
     };
 }
 
-function renderJoinableParticipants(participants, groupId, mode, groupType) {
+function renderJoinableParticipants(participants, groupId, mode, groupType, myParticipantId) {
     const listContainer = document.getElementById('join-participants-list');
     const resultDisplay = document.getElementById('join-result-display');
     if (!listContainer) return;
@@ -698,8 +716,10 @@ function renderJoinableParticipants(participants, groupId, mode, groupType) {
 
     participants.forEach(p => {
         const item = document.createElement('div');
+        const isMe = p.id === myParticipantId;
         item.className = 'join-participant';
-        item.textContent = p.nome;
+        if(isMe) { item.classList.add('is-me'); }
+        item.textContent = p.nome + (isMe ? ' (Você)' : '');
         item.dataset.id = p.id;
         item.dataset.name = p.nome;
         item.dataset.senha = p.senha;
