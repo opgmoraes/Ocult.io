@@ -194,3 +194,23 @@ a.grupo-card { text-decoration: none; }
     .hero p { font-size: 16px; }
     .dashboard-header { flex-direction: column; gap: 20px; }
 }
+
+/* --- Estilo do Indicador "Você" --- */
+.join-list-container .join-participant.is-me {
+    background-color: var(--gold-cool);
+    color: var(--deep-blue);
+    border-color: var(--gold-cool);
+}
+
+/* --- Estilo da Prova Social --- */
+.social-proof-text {
+    margin-top: 25px;
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+.social-proof-text strong {
+    color: var(--gold-cool);
+    font-weight: 600;
+}
