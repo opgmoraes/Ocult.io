@@ -23,16 +23,14 @@ export default async function handler(request, response) {
   }
 
   try {
-    // --- LÓGICA ATUALIZADA PARA A CAKTO ---
     const { event, data } = request.body;
     const email = data && data.customer ? data.customer.email : null;
 
-    // Log de segurança para vermos exatamente o que a Cakto enviou
-    console.log('CORPO COMPLETO DO WEBHOOK:', JSON.stringify(request.body, null, 2));
+    console.log(`Webhook da Cakto recebido: Email - ${email}, Evento - ${event}`);
 
-    // A CONDIÇÃO AGORA VERIFICA OS EVENTOS CORRETOS DA CAKTO
+    // --- A CORREÇÃO ESTÁ AQUI ---
     const isApprovedEvent = event === 'purchase_approved'; // Compra real aprovada
-    const isTestEvent = event === 'pix_created';     // PIX gerado (para nosso teste gratuito)
+    const isTestEvent = event === 'pix_gerado';     // PIX gerado (AGORA CORRETO!)
 
     if (isApprovedEvent || isTestEvent) {
       if (!email) {
