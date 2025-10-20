@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pathname.includes('dashboard.html')) setupDashboardPage();
     else if (pathname.includes('grupo.html')) setupGroupPage();
     else if (pathname.includes('juntar.html')) setupJoinPage();
-    else if (pathname.includes('index.html') || pathname === '/') setupIndexPage();
+    else if (pathname.endsWith('/') || pathname.includes('index.html')) setupIndexPage();
     setupAuthForms();
 });
 
@@ -106,7 +106,7 @@ function setupIndexPage() {
             const isActive = item.classList.contains('active');
             faqItems.forEach(otherItem => {
                 otherItem.classList.remove('active');
-                otherItem.querySelector('.faq-answer').style.maxHeight = 0;
+                otherItem.querySelector('.faq-answer').style.maxHeight = null;
             });
             if (!isActive) {
                 item.classList.add('active');
@@ -619,8 +619,8 @@ function updateRuleSelectors(participants) {
     if (!fromSelect || !toSelect) return;
     const currentFromValue = fromSelect.value;
     const currentToValue = toSelect.value;
-    fromSelect.innerHTML = '<option value="" disabled>De...</option>';
-    toSelect.innerHTML = '<option value="" disabled>Para...</option>';
+    fromSelect.innerHTML = '<option value="" disabled selected>De...</option>';
+    toSelect.innerHTML = '<option value="" disabled selected>Para...</option>';
     participants.forEach(p => {
         const optionHTML = `<option value="${p.id}">${p.nome}</option>`;
         fromSelect.innerHTML += optionHTML;
