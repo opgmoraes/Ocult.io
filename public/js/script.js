@@ -80,10 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pathname.includes('dashboard.html')) setupDashboardPage();
     else if (pathname.includes('grupo.html')) setupGroupPage();
     else if (pathname.includes('juntar.html')) setupJoinPage();
+    else if (pathname.includes('index.html') || pathname === '/') setupIndexPage();
     setupAuthForms();
 });
 
-// --- FUNÇÃO PARA GERENCIAR O REDIRECT PREMIUM ---
+// --- FUNÇÕES DE SETUP ---
 function handleRedirectIntent() {
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
@@ -96,7 +97,25 @@ function handleRedirectIntent() {
     }
 }
 
-// --- FUNÇÕES DE SETUP ---
+function setupIndexPage() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const answer = item.querySelector('.faq-answer');
+            const isActive = item.classList.contains('active');
+            faqItems.forEach(otherItem => {
+                otherItem.classList.remove('active');
+                otherItem.querySelector('.faq-answer').style.maxHeight = 0;
+            });
+            if (!isActive) {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            }
+        });
+    });
+}
+
 function setupAuthForms() {
     const signupForm = document.getElementById('signup-form');
     if (signupForm) {
@@ -167,7 +186,7 @@ function setupDashboardPage() {
     if (localStorage.getItem('upgradeIntent') === 'true') {
         localStorage.removeItem('upgradeIntent');
         window.location.href = 'https://pay.cakto.com.br/sbiiqte_611960';
-        return;
+        return; 
     }
 
     const logoutButton = document.getElementById('logout-button');
@@ -246,7 +265,7 @@ function setupDashboardPage() {
             regrasExclusao: [] 
         }).then((docRef) => { 
             modal.style.display = 'none'; 
-            this.reset();
+            this.reset(); 
             window.location.href = `grupo.html?id=${docRef.id}`;
         }); 
     });
