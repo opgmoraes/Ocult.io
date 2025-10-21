@@ -77,14 +77,17 @@ function showCustomPrompt(message, type = 'text') {
 document.addEventListener('DOMContentLoaded', () => {
     handleRedirectIntent();
     const pathname = window.location.pathname;
+    const isIndex = pathname.endsWith('/') || pathname.includes('index.html');
+    
     if (pathname.includes('dashboard.html')) setupDashboardPage();
     else if (pathname.includes('grupo.html')) setupGroupPage();
     else if (pathname.includes('juntar.html')) setupJoinPage();
-    else if (pathname.endsWith('/') || pathname.includes('index.html')) setupIndexPage();
+    else if (isIndex) setupIndexPage();
+    
     setupAuthForms();
 });
 
-// --- FUNÇÕES DE SETUP ---
+// --- FUNÇÃO PARA GERENCIAR O REDIRECT PREMIUM ---
 function handleRedirectIntent() {
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
@@ -97,6 +100,7 @@ function handleRedirectIntent() {
     }
 }
 
+// --- FUNÇÕES DE SETUP ---
 function setupIndexPage() {
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
@@ -104,10 +108,12 @@ function setupIndexPage() {
         question.addEventListener('click', () => {
             const answer = item.querySelector('.faq-answer');
             const isActive = item.classList.contains('active');
+            
             faqItems.forEach(otherItem => {
                 otherItem.classList.remove('active');
                 otherItem.querySelector('.faq-answer').style.maxHeight = null;
             });
+
             if (!isActive) {
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + 'px';
