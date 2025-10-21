@@ -30,7 +30,7 @@ export default async function handler(request, response) {
 
     // --- A CORREÇÃO ESTÁ AQUI ---
     const isApprovedEvent = event === 'purchase_approved'; // Compra real aprovada
-    const isTestEvent = event === 'pix_gerado';     // PIX gerado (AGORA CORRETO!)
+    const isTestEvent = event === 'pix_gerado';     // PIX gerado 
 
     if (isApprovedEvent || isTestEvent) {
       if (!email) {
