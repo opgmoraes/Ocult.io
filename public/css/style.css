@@ -37,7 +37,6 @@ a:hover { opacity: 0.8; }
 .hero p { font-size: 18px; max-width: 650px; margin: 0 auto 30px; color: var(--snow-white); font-weight: 300; }
 .social-proof-text { margin-top: 25px; font-size: 14px; color: var(--text-muted); font-weight: 300; }
 .social-proof-text strong { color: var(--gold-cool); font-weight: 600; }
-
 .features { padding: 80px 0; text-align: center; background-color: var(--darker-blue); }
 .features h2 { font-size: 36px; margin-bottom: 50px; }
 .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
@@ -45,7 +44,6 @@ a:hover { opacity: 0.8; }
 .feature-icon { width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background-color: var(--red-natal); color: var(--snow-white); font-size: 24px; font-weight: 700; margin: 0 auto 20px; }
 .feature-item h3 { font-size: 22px; margin-bottom: 10px; }
 .feature-item p { color: var(--text-muted); }
-
 .planos { padding: 80px 0; background-color: var(--deep-blue); text-align: center; }
 .planos h2 { font-size: 36px; margin-bottom: 50px; }
 .planos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
@@ -56,14 +54,12 @@ a:hover { opacity: 0.8; }
 .plano-card .preco { font-size: 28px; font-weight: 700; color: var(--gold-cool); margin-bottom: 20px; }
 .plano-card ul { list-style: none; margin-bottom: 30px; }
 .plano-card ul li { margin-bottom: 10px; }
-
 .testimonials { padding: 80px 0; background-color: var(--darker-blue); }
 .testimonials h2 { text-align: center; font-size: 36px; margin-bottom: 50px; }
 .testimonials-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 .testimonial-card { background-color: var(--deep-blue); padding: 30px; border-radius: 8px; border-left: 4px solid var(--red-natal); }
 .testimonial-card p { font-style: italic; color: var(--text-muted); margin-bottom: 15px; }
 .testimonial-card strong { color: var(--snow-white); }
-
 .faq { padding: 80px 0; }
 .faq h2 { text-align: center; font-size: 36px; margin-bottom: 50px; }
 .faq-container { max-width: 700px; margin: 0 auto; }
@@ -89,6 +85,7 @@ a:hover { opacity: 0.8; }
 .invite-title { color: var(--gold-cool); font-size: 28px; font-weight: 700; margin-bottom: 20px; word-break: break-word; }
 .join-list-container .join-participant { background-color: rgba(232, 74, 95, 0.1); color: var(--red-natal); border: 1px solid var(--red-natal); padding: 15px; border-radius: 5px; margin-bottom: 10px; text-align: center; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
 .join-list-container .join-participant:hover { background-color: var(--red-natal); color: var(--snow-white); }
+.join-list-container .join-participant.is-me { background-color: var(--gold-cool); color: var(--deep-blue); border-color: var(--gold-cool); }
 #join-list-title { margin-top: 30px; margin-bottom: 15px; font-size: 18px; color: var(--text-muted); text-align: center; }
 
 /* --- Estilos do Painel (Dashboard) --- */
@@ -111,8 +108,6 @@ a.grupo-card { text-decoration: none; }
 .group-info { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
 .participant-count { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-muted); }
 .participant-count svg { fill: var(--text-muted); }
-
-/* --- BANNER PREMIUM --- */
 .premium-banner { background: var(--darker-blue); border: 1px solid var(--borda-suave); border-radius: 8px; padding: 40px; margin-top: 60px; display: grid; grid-template-columns: 2fr 1fr; align-items: center; gap: 40px; }
 .premium-pitch h3 { color: var(--gold-cool); font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 .premium-features { list-style: none; padding-left: 0; }
@@ -125,7 +120,7 @@ a.grupo-card { text-decoration: none; }
 /* --- Modais --- */
 .modal, .action-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
 .modal-content, .action-modal-content { background-color: var(--darker-blue); margin: auto; padding: 30px; border: 1px solid #333; width: 80%; max-width: 500px; border-radius: 8px; position: relative; border-top: 4px solid var(--red-natal); }
-.modal-content h2 { color: var(--snow-white); }
+.modal-content h2, .action-modal-content p { color: var(--snow-white); }
 .close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
 .close-button:hover, .close-button:focus { color: var(--snow-white); }
 .action-modal-content p { font-size: 18px; margin-bottom: 20px; }
